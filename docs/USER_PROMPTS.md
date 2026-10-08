@@ -1,22 +1,85 @@
-# META_PROMPT — 바이브 코딩 하네스 구성 프롬프트 모음
+# USER_PROMPTS — 바이브 코딩 사용자 프롬프트 모음
 
 > **사람이 복사해서 AI에게 붙여넣는 문서**다. `< >` 부분만 프로젝트에 맞게 바꾼다.
 > 근거: 이전 프로젝트(axfoundly, UnifiedMessagingService, codeindocker, Formatly, bidsenses 등)에서 반복 입력한 지시를 표준화했다.
-> 반복 지시 중 상시 규칙이 된 것은 이미 `rules/`의 🧩 메타 기본값으로 들어 있으므로, 프롬프트에 다시 적을 필요가 없다.
+> 반복 지시 중 상시 규칙이 된 것은 이미 `docs/agent/rules/`의 🧩 메타 기본값으로 들어 있으므로, 프롬프트에 다시 적을 필요가 없다.
 >
 > **어떤 AI에서든 그대로 쓴다** (Claude·Gemini·ChatGPT·Cursor·Copilot 등). 도구 전용 문법(`@파일`, 슬래시 명령)은 쓰지 않고 파일은 리포 루트 기준 경로로 적는다.
 > - 에이전트형(파일·명령 실행 가능): 프롬프트만 붙여넣는다.
 > - 채팅형(웹 ChatGPT·Gemini 등): 프롬프트와 함께 `docs/agent/AGENT_GUIDE.md`, `docs/agent/ENTRY_TEMPLATE.md`, `docs/agent/rules/*.md`, 업무정의서를 첨부한다. AI는 파일 내용과 실행할 명령을 출력하고, 사용자가 반영·실행한 결과를 다시 붙여넣는다.
 
+## 전체 흐름
+
+```
+① 업무정의서 작성        docs/PRD_TEMPLATE.md → docs/PRD_<프로젝트>.md   ([P] 프롬프트)
+② 하네스 초기 구성       AI가 PRD를 docs/agent/에 반영, 빈칸만 질문     ([A] 프롬프트)
+③ 개발                   기능 구현 → 검증 → 업무 묶음별 커밋            ([B] 프롬프트)
+④ 하네스 유지보수        새 상시 규칙 추가                              ([C] 프롬프트)
+```
+
+| 파일 | 용도 |
+|---|---|
+| `docs/PRD_TEMPLATE.md` | 업무정의서 작성 폼 |
+| `docs/USER_PROMPTS.md` | 이 문서 — 단계별 프롬프트 |
+| `docs/agent/` | AI가 읽는 하네스 문서 (사람이 직접 고칠 일은 거의 없음) |
+
 ---
 
-## [A] 초기 구성 프롬프트 (새 프로젝트 첫 입력)
+## [P] 업무정의서(PRD) 작성 프롬프트
+
+### P-1. 직접 쓰고 AI에게 다듬게 하기
+먼저 `docs/PRD_TEMPLATE.md`를 `docs/PRD_<프로젝트>.md`로 복사해 아는 것만 채운 뒤:
+```text
+docs/PRD_<프로젝트>.md 를 docs/PRD_TEMPLATE.md 형식 기준으로 검토하고 다듬어줘.
+- 빈칸·모호한 칸을 목록으로 보여주고, 내가 답하면 채워줘 (한 번에 한 주제, 선택지와 추천안 포함)
+- 6장 업무 용어 사전: 같은 것을 다르게 부른 표현을 찾아 하나로 통일 제안, 영문 이름 제안
+- 3장 기능 목록과 4장 기능 상세, 2.3 시나리오가 서로 빠짐없이 연결되는지 확인
+- [필수] 칸이 다 차면 "하네스 구성 준비 완료"라고 알려줘
+- 아직 코드는 작성하지 마
+```
+
+### P-2. 메모·기획안·회의록에서 PRD 만들기
+```text
+아래 자료로 docs/PRD_TEMPLATE.md 형식의 업무정의서를 docs/PRD_<프로젝트>.md 로 작성해줘.
+- 자료에 없는 내용은 지어내지 말고 비워두거나 "미정"으로 표시
+- 자료에서 추론한 내용은 끝에 "(추정)"을 붙여 구분
+- 다 쓰면 빈칸·추정 항목만 모아서 질문해줘
+- 아직 코드는 작성하지 마
+
+[자료]
+<붙여넣기 또는 파일 경로: docs/<기획안>.md, docs/<회의록>.md, docs/<목업>.png>
+```
+
+### P-3. 아무것도 없이 인터뷰로 만들기
+```text
+docs/PRD_TEMPLATE.md 형식으로 업무정의서를 함께 만들자. 인터뷰 방식으로 진행해줘.
+- 1장 개요부터 순서대로, 한 번에 한 주제만 질문
+- 질문마다 선택지와 추천안, 이유를 같이 줘
+- "알아서 해줘"라고 하면 추천값으로 채우고 무엇을 골랐는지 알려줘
+- 끝나면 docs/PRD_<프로젝트>.md 로 저장 (파일을 못 쓰는 AI면 전체 내용을 출력)
+- 아직 코드는 작성하지 마
+```
+
+### P-4. PRD 변경 (개발 중)
+```text
+docs/PRD_<프로젝트>.md 를 아래처럼 변경하고, docs/agent/ 의 관련 rules·specs도 같이 갱신해줘.
+- 이미 결정된 항목이 바뀌면 99_DECISIONS 기록
+- 영향받는 기능·화면·API 목록을 먼저 보여주고 진행
+- 변경은 docs: 커밋으로 남김
+
+[변경 내용]
+- <변경 1>
+```
+
+---
+
+## [A] 초기 구성 프롬프트 (PRD 작성 후 첫 입력)
 
 ```text
 docs/agent/AGENT_GUIDE.md 를 읽고 이 프로젝트의 하네스를 초기 구성해줘.
 
 [입력]
-- 업무정의서: docs/<업무정의서 파일명>.md   (채팅형이면 첨부)
+- 업무정의서: docs/PRD_<프로젝트>.md   (채팅형이면 첨부)
 - 참조 자료: <없으면 삭제 — 예: docs/<화면 목업>.png, docs/<예제 데이터>.csv>
 - 실행 환경: <예: 개발 컨테이너(Linux) / macOS / WSL>
 - DB: <예: MongoDB — 별도 docker 컨테이너, MONGODB_URI=mongodb://host.docker.internal:27017, MONGODB_DBNAME=<프로젝트>_dev>
@@ -40,8 +103,10 @@ docs/agent/AGENT_GUIDE.md 를 읽고 이 프로젝트의 하네스를 초기 구
 
 ### 변형 A-1. 업무정의서 없이 시작
 ```text
+업무정의서 없이 바로 시작하려면 먼저 [P-3]으로 PRD를 만든 뒤 [A]를 쓴다.
+PRD 파일을 남기지 않고 바로 시작하려면:
 docs/agent/AGENT_GUIDE.md 를 읽고 인터뷰를 시작해줘. 업무정의서는 없어.
-인터뷰가 끝나면 답변 내용을 docs/업무정의서.md 로 정리해 두고 Phase 3부터 진행해줘.
+인터뷰 내용은 docs/PRD_TEMPLATE.md 형식으로 docs/PRD_<프로젝트>.md 에 정리해 두고 Phase 3부터 진행해줘.
 ```
 
 ### 변형 A-2. 기존 프로젝트에 하네스 이식
@@ -51,7 +116,7 @@ docs/agent/AGENT_GUIDE.md 기준으로 현재 프로젝트에 맞게 하네스 �
 - 기존 코드의 엔티티·필드·상태값 이름을 모아 rules/09 업무 용어 사전 작성, 동의어 혼용은 목록으로 보고
 - 중복 하네스 파일은 병합, 불필요한 파일은 목록으로 보여주고 확인 후 삭제
 - 폴더 위치 이동 포함, 글로벌 프롬프트는 그대로 유지
-- 업무정의서: docs/<파일>.md (없으면 삭제)
+- 업무정의서: docs/PRD_<프로젝트>.md (없으면 삭제)
 ```
 
 ---
@@ -60,7 +125,7 @@ docs/agent/AGENT_GUIDE.md 기준으로 현재 프로젝트에 맞게 하네스 �
 
 ### B-1. 업무정의서 전체 구현
 ```text
-docs/<업무정의서>.md 대로 마무리까지 구현.
+docs/PRD_<프로젝트>.md 대로 마무리까지 구현.
 - 부족한 부분은 판단해 진행 (판단한 내용은 보고에 명시)
 - 기능마다 specs 먼저 → 구현 → Playwright 검증 → 업무 묶음별 커밋
 - 이름은 rules/09 업무 용어 사전 기준
@@ -106,19 +171,19 @@ docs/<업무정의서>.md 대로 마무리까지 구현.
 ```
 
 자주 쓰던 예:
-- "특정 업무 묶음마다 commit 진행, 하네스 프롬프트에 명기" → 이미 `rules/08` 🧩
-- "검증은 playwright(headless)로, pytest 제외" → 이미 `rules/07` 🧩
-- "의뢰자 소통용 UI 태그 채번, 운영에선 숨김" → 이미 `rules/03` 🧩
-- ".env 는 root 한 파일로 통일" → 이미 `rules/06` 🧩
-- "업무에 맞는 naming rule" → 이미 `rules/09` 4~5장 업무 용어 사전 📋 (업무정의서로 작성)
-- "any AI에서 동작" → 이미 `AGENT_GUIDE` 0장 + `ENTRY_TEMPLATE.md`
-- "검증 완료 시 git push/pull" → 이미 `rules/08` 🧩
+- "특정 업무 묶음마다 commit 진행, 하네스 프롬프트에 명기" → 이미 `docs/agent/rules/08` 🧩
+- "검증은 playwright(headless)로, pytest 제외" → 이미 `docs/agent/rules/07` 🧩
+- "의뢰자 소통용 UI 태그 채번, 운영에선 숨김" → 이미 `docs/agent/rules/03` 🧩
+- ".env 는 root 한 파일로 통일" → 이미 `docs/agent/rules/06` 🧩
+- "업무에 맞는 naming rule" → 이미 `docs/agent/rules/09` 4~5장 업무 용어 사전 📋 (업무정의서로 작성)
+- "any AI에서 동작" → 이미 `AGENT_GUIDE` 0장 + `docs/agent/ENTRY_TEMPLATE.md`
+- "검증 완료 시 git push/pull" → 이미 `docs/agent/rules/08` 🧩
 
 ---
 
 ## [D] 메타 기본값 요약 (🧩 — rules에 이미 반영됨)
 
-| 영역 | 기본값 | 원본 |
+| 영역 | 기본값 | 원본 (docs/agent/ 기준) |
 |---|---|---|
 | 문서 | 에이전트 문서는 `docs/agent/`, `docs/` 루트는 사용자 지침서·업무정의서. 한국어 작성 | AGENT_GUIDE |
 | 환경변수 | 루트 `.env` 단일 파일 + `.env.example`, 서브 프로젝트도 루트 파일을 읽음 | 06 |

@@ -11,7 +11,7 @@
 # AGENTS.md — <프로젝트명>
 
 이 리포에서 작업하는 모든 AI 에이전트(도구 무관)는 이 파일과 `docs/agent/AGENT_GUIDE.md`를 먼저 읽는다.
-세부 규칙의 원본은 `docs/agent/rules/`, 기능 명세는 `docs/agent/specs/`, 업무 원문은 `docs/<업무정의서>.md`.
+세부 규칙의 원본은 `docs/agent/rules/`, 기능 명세는 `docs/agent/specs/`, 업무 원문은 `docs/PRD_<프로젝트>.md`.
 
 ## 프로젝트
 - <한 줄 소개> (rules/00)

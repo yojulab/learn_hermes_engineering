@@ -2,7 +2,7 @@
 
 > 문서 상태: ❓ 작성 전
 > 버전을 명시하지 않으면 AI마다 다른 버전을 가정해 코드가 꼬인다. 반드시 구체적인 버전까지 결정한다.
-> 업무정의서에 스택 지정이 없으면 💬 인터뷰로 추천안을 제시한다. 최신 stable 버전은 Context7 MCP 등으로 확인 후 제안한다.
+> 업무정의서에 스택 지정이 없으면 💬 인터뷰로 추천안을 제시한다. 최신 stable 버전은 공식 문서(도구가 지원하면 문서 검색 MCP 등)로 확인 후 제안한다. 확인할 수 없는 AI는 "확인 필요"로 표시한다.
 
 ## 1. 개발 환경
 
@@ -12,9 +12,11 @@
 - 결정:
 - 결정일:
 
-### 사용 AI 에이전트 🧩
-- 상태: 🧩 기본값
-- 결정: Claude Code CLI + Antigravity(Gemini) 병용. 하네스 원본은 `docs/agent/`, 진입점은 `CLAUDE.md`·`AGENTS.md`(필요 시 `GEMINI.md`)
+### 사용 AI 도구 📋 💬
+- 상태: ❓ 미결정
+- 선택지 예: Claude Code / Gemini CLI / Antigravity / Codex CLI / Cursor / Windsurf / Copilot / 웹 채팅(ChatGPT·Gemini·Claude) — 복수 선택
+- 결정: (여기 적힌 도구의 포인터 파일만 만든다 — AGENT_GUIDE 0-3)
+- 공통: 규칙 원본은 `docs/agent/`, 표준 진입점은 루트 `AGENTS.md`. 어떤 도구든 같은 규칙으로 동작한다
 - 결정일:
 
 ## 2. 백엔드
